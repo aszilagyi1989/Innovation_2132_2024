@@ -1,0 +1,799 @@
+source("Functions_Standard.R")
+source("Profile_ENT.R")
+library("data.table")
+library("dplyr")
+
+T26_SDMX <- "T26_SDMX_INN.txt"
+T26_SDMX_RESULT <- "T26_SDMX_INN_RESULT.txt"
+
+TABLENAME <- "T26"
+
+TYPE_ENT <- "INN"
+INN_PF <- "_Z"
+INDICATOR <- "ENT"
+
+UNIT_MEASURE <- "PN"
+UNIT_MULT <- "0"
+DECIMALS <- "0"
+
+expression <- c("is.na(INN$FUND_IG_LOAN_RNDINN) == FALSE & INN$FUND_IG_LOAN_RNDINN == 1",
+                "INN$M092 %in% INFL_TKNOW$M092", 
+                "INN$M092 %in% INFL_FINRES$M092", 
+                "INN$M092 %in% INFL_PER$M092", 
+                "INN$M092 %in% INFL_SOURC$M092", 
+                "is.na(INN$INFL_TKNOW_NAT) == FALSE & INN$INFL_TKNOW_NAT == 1", 
+                "is.na(INN$INFL_FINRES_NAT) == FALSE & INN$INFL_FINRES_NAT == 1", 
+                "is.na(INN$INFL_PER_NAT) == FALSE & INN$INFL_PER_NAT == 1", 
+                "is.na(INN$INFL_SOURC_NAT) == FALSE & INN$INFL_SOURC_NAT == 1", 
+                "is.na(INN$INFL_TKNOW_FOR) == FALSE & INN$INFL_TKNOW_FOR == 1", 
+                "is.na(INN$INFL_FINRES_FOR) == FALSE & INN$INFL_FINRES_FOR == 1", 
+                "is.na(INN$INFL_PER_FOR) == FALSE & INN$INFL_PER_FOR == 1", 
+                "is.na(INN$INFL_SOURC_FOR) == FALSE & INN$INFL_SOURC_FOR == 1", 
+                "is.na(INN$INFL_NTKNOW) == FALSE & INN$INFL_NTKNOW == 1", 
+                "is.na(INN$INFL_NFINRES) == FALSE & INN$INFL_NFINRES == 1", 
+                "is.na(INN$INFL_NPER) == FALSE & INN$INFL_NPER == 1", 
+                "is.na(INN$INFL_NSOURC) == FALSE & INN$INFL_NSOURC == 1", 
+                "INN$M092 %in% OUTFL_TKNOW$M092", 
+                "INN$M092 %in% OUTFL_FINRES$M092", 
+                "INN$M092 %in% OUTFL_PER$M092", 
+                "INN$M092 %in% OUTFL_SOURC$M092", 
+                "is.na(INN$OUTFL_TKNOW_NAT) == FALSE & INN$OUTFL_TKNOW_NAT == 1", 
+                "is.na(INN$OUTFL_FINRES_NAT) == FALSE & INN$OUTFL_FINRES_NAT == 1", 
+                "is.na(INN$OUTFL_PER_NAT) == FALSE & INN$OUTFL_PER_NAT == 1", 
+                "is.na(INN$OUTFL_SOURC_NAT) == FALSE & INN$OUTFL_SOURC_NAT == 1", 
+                "is.na(INN$OUTFL_TKNOW_FOR) == FALSE & INN$OUTFL_TKNOW_FOR == 1", 
+                "is.na(INN$OUTFL_FINRES_FOR) == FALSE & INN$OUTFL_FINRES_FOR == 1", 
+                "is.na(INN$OUTFL_PER_FOR) == FALSE & INN$OUTFL_PER_FOR == 1", 
+                "is.na(INN$OUTFL_SOURC_FOR) == FALSE & INN$OUTFL_SOURC_FOR == 1", 
+                "is.na(INN$OUTFL_NTKNOW) == FALSE & INN$OUTFL_NTKNOW == 1", 
+                "is.na(INN$OUTFL_NFINRES) == FALSE & INN$OUTFL_NFINRES == 1", 
+                "is.na(INN$OUTFL_NPER) == FALSE & INN$OUTFL_NPER == 1", 
+                "is.na(INN$OUTFL_NSOURC) == FALSE & INN$OUTFL_NSOURC == 1")
+
+expression2 <- c("FUND_IG_LOAN_RNDINN",
+                 "INFL_TKNOW", 
+                 "INFL_FINRES", 
+                 "INFL_PER", 
+                 "INFL_SOURC", 
+                 "INFL_TKNOW_NAT", 
+                 "INFL_FINRES_NAT", 
+                 "INFL_PER_NAT", 
+                 "INFL_SOURC_NAT", 
+                 "INFL_TKNOW_FOR", 
+                 "INFL_FINRES_FOR", 
+                 "INFL_PER_FOR", 
+                 "INFL_SOURC_FOR", 
+                 "INFL_NTKNOW", 
+                 "INFL_NFINRES", 
+                 "INFL_NPER", 
+                 "INFL_NSOURC", 
+                 "OUTFL_TKNOW", 
+                 "OUTFL_FINRES", 
+                 "OUTFL_PER", 
+                 "OUTFL_SOURC", 
+                 "OUTFL_TKNOW_NAT", 
+                 "OUTFL_FINRES_NAT", 
+                 "OUTFL_PER_NAT", 
+                 "OUTFL_SOURC_NAT", 
+                 "OUTFL_TKNOW_FOR", 
+                 "OUTFL_FINRES_FOR", 
+                 "OUTFL_PER_FOR", 
+                 "OUTFL_SOURC_FOR", 
+                 "OUTFL_NTKNOW", 
+                 "OUTFL_NFINRES", 
+                 "OUTFL_NPER", 
+                 "OUTFL_NSOURC")
+
+cat(paste("DATAFLOW", "FREQ", "TIME_PERIOD", "REF_AREA", "TABLENAME", "ACTIVITY", "NUMBER_EMPL", "TYPE_ENT", "INN_PF", "INDICATOR", "CIS_INDICATOR",	"OBS_VALUE", "UNIT_MEASURE", "UNIT_MULT", "DECIMALS",	"OBS_STATUS",	"OBS_STATUS_1",	"CONF_STATUS", "COMMENT_OBS", sep = ";"), sep = "\n", file = T26_SDMX, append = FALSE)
+for(num in 1:length(expression)){
+  
+  INN_DT <- data.table(INN[eval(parse(text = expression[num])), ])
+  INN_DT <- INN_DT[, .(ENT22_SULYOZOTT=sum(VGMA001_SULY)), by = "M065_RETEG1,M0581_2J"]
+  
+  if(nrow(INN_DT) != 0){
+    
+    INN_Ordered <- cbind(INN_DT, stringsAsFactors = FALSE)
+    INN_Ordered <- INN_Ordered[order(INN_Ordered$M065_RETEG1, INN_Ordered$M0581_2J), ]
+    
+    CIS_INDICATOR <- expression2[num]
+    
+    for(i in 1:nrow(INN_Ordered)){
+      
+      if(INN_Ordered[i, 1] == "KI"){
+        
+        NUMBER_EMPL <- "E10T49"
+        
+      } else if(INN_Ordered[i, 1] == "KO"){
+        
+        NUMBER_EMPL <- "E50T249"
+        
+      } else{
+        
+        NUMBER_EMPL <- "E_GE250"   
+        
+      }
+      
+      ACTIVITY <- get_NACE(INN_Ordered[i, 2])
+      OBS_VALUE <- INN_Ordered[i, 3]
+      cat(paste(DATAFLOW, FREQ, TIME_PERIOD, REF_AREA, TABLENAME, ACTIVITY, NUMBER_EMPL, TYPE_ENT, INN_PF, INDICATOR, CIS_INDICATOR,	OBS_VALUE, UNIT_MEASURE, UNIT_MULT, DECIMALS,	OBS_STATUS,	OBS_STATUS_1,	CONF_STATUS, COMMENT_OBS, sep = ";"), sep = "\n", file = T26_SDMX, append = TRUE)
+    
+      }
+  }
+}
+
+TXTData <- file(description = T26_SDMX, open = "r")
+line <- readLines(con = TXTData)
+Aggregate <- data.frame()
+
+for (i in 2:length(line)){
+  values <- strsplit(x = line[i], split = ";");
+  df <- data.frame(matrix(unlist(values), nrow = 1), stringsAsFactors = FALSE)
+  Aggregate <- rbind(Aggregate, df)
+}
+
+names(Aggregate) = c("DATAFLOW", "FREQ", "TIME_PERIOD", "REF_AREA", "TABLENAME", "ACTIVITY", "NUMBER_EMPL", "TYPE_ENT", "INN_PF", "INDICATOR", "CIS_INDICATOR",	"OBS_VALUE", "UNIT_MEASURE", "UNIT_MULT", "DECIMALS",	"OBS_STATUS",	"OBS_STATUS_1",	"CONF_STATUS")
+Aggregate$COMMENT_OBS <- "" #"COMMENT_OBS" oszlop nincs
+NUMBER_EMPL <- "_T"
+for(num in 1:length(expression)){
+  
+  CIS_INDICATOR <- expression2[num]
+  
+  for(j in 1:length(ACTIVITY_LIST)){
+    
+    ACTIVITY <- ACTIVITY_LIST[j]
+    insert_Total(TYPE_ENT, ACTIVITY, NUMBER_EMPL, UNIT_MEASURE, INDICATOR, CIS_INDICATOR, T26_SDMX)
+    
+  }
+  
+  TXTData <- file(description = T26_SDMX, open = "r")
+  line <- readLines(con = TXTData)
+  result_Aggregate <- data.frame()
+  
+  for (i in 2:length(line)){
+    values <- strsplit(x = line[i], split = ";");
+    df <- data.frame(matrix(unlist(values), nrow = 1), stringsAsFactors = FALSE)
+    result_Aggregate <- rbind(result_Aggregate, df)
+  }
+  
+  names(result_Aggregate) = c("DATAFLOW", "FREQ", "TIME_PERIOD", "REF_AREA", "TABLENAME", "ACTIVITY", "NUMBER_EMPL", "TYPE_ENT", "INN_PF", "INDICATOR", "CIS_INDICATOR",	"OBS_VALUE", "UNIT_MEASURE", "UNIT_MULT", "DECIMALS",	"OBS_STATUS",	"OBS_STATUS_1",	"CONF_STATUS")
+  result_Aggregate$COMMENT_OBS <- ""
+  result_Aggregate <- result_Aggregate[result_Aggregate$NUMBER_EMPL == "_T", ]
+  nrow(result_Aggregate)
+  result_Aggregate[, "OBS_VALUE"] <- gsub("\\.", ",", result_Aggregate[, "OBS_VALUE"])
+  write.table(result_Aggregate, T26_SDMX_RESULT, sep = ";", quote = FALSE, row.names = FALSE, append = FALSE)
+  
+  #Összetett értékek számítása több ACTIVITY kód alapján az összes vállalatcsoportra
+  ACTIVITY <- "A"
+  NUMBER_EMPL <- "_T"
+  insert_A(TYPE_ENT, ACTIVITY, NUMBER_EMPL, UNIT_MEASURE, INDICATOR, CIS_INDICATOR, T26_SDMX)
+  
+  ACTIVITY <- "B"
+  for(j in 1:length(NUMBER_EMPL_LIST)){
+    
+    NUMBER_EMPL <- NUMBER_EMPL_LIST[j]
+    insert_B(TYPE_ENT, ACTIVITY, NUMBER_EMPL, UNIT_MEASURE, INDICATOR, CIS_INDICATOR, T26_SDMX)
+    
+  }
+  
+  ACTIVITY <- "C"
+  for(j in 1:length(NUMBER_EMPL_LIST)){
+    
+    NUMBER_EMPL <- NUMBER_EMPL_LIST[j]
+    insert_C(TYPE_ENT, ACTIVITY, NUMBER_EMPL, UNIT_MEASURE, INDICATOR, CIS_INDICATOR, T26_SDMX)
+    
+  }
+  
+  ACTIVITY <- "C10T12"
+  insert_C10T12(TYPE_ENT, ACTIVITY, NUMBER_EMPL, UNIT_MEASURE, INDICATOR, CIS_INDICATOR, T26_SDMX)
+  
+  ACTIVITY <- "C13T15"
+  insert_C13T15(TYPE_ENT, ACTIVITY, NUMBER_EMPL, UNIT_MEASURE, INDICATOR, CIS_INDICATOR, T26_SDMX)
+  
+  ACTIVITY <- "C16T18"
+  insert_C16T18(TYPE_ENT, ACTIVITY, NUMBER_EMPL, UNIT_MEASURE, INDICATOR, CIS_INDICATOR, T26_SDMX)
+  
+  #ACTIVITY <- "C19_20"
+  #insert_C19T20(TYPE_ENT, ACTIVITY, NUMBER_EMPL, UNIT_MEASURE, INDICATOR, CIS_INDICATOR, T26_SDMX)
+  
+  ACTIVITY <- "C19T21"
+  insert_C19T21(TYPE_ENT, ACTIVITY, NUMBER_EMPL, UNIT_MEASURE, INDICATOR, CIS_INDICATOR, T26_SDMX)
+  
+  #ACTIVITY <- "C19T22"
+  #insert_C19T22(TYPE_ENT, ACTIVITY, NUMBER_EMPL, UNIT_MEASURE, INDICATOR, CIS_INDICATOR, T26_SDMX)
+  
+  ACTIVITY <- "C22_23"
+  insert_C22T23(TYPE_ENT, ACTIVITY, NUMBER_EMPL, UNIT_MEASURE, INDICATOR, CIS_INDICATOR, T26_SDMX)
+  
+  ACTIVITY <- "C24_25"
+  insert_C24T25(TYPE_ENT, ACTIVITY, NUMBER_EMPL, UNIT_MEASURE, INDICATOR, CIS_INDICATOR, T26_SDMX)
+  
+  ACTIVITY <- "C26T28"
+  insert_C26T28(TYPE_ENT, ACTIVITY, NUMBER_EMPL, UNIT_MEASURE, INDICATOR, CIS_INDICATOR, T26_SDMX)
+  
+  ACTIVITY <- "C29_30"
+  insert_C29T30(TYPE_ENT, ACTIVITY, NUMBER_EMPL, UNIT_MEASURE, INDICATOR, CIS_INDICATOR, T26_SDMX)
+  
+  #ACTIVITY <- "C25T30"
+  #insert_C25T30(TYPE_ENT, ACTIVITY, NUMBER_EMPL, UNIT_MEASURE, INDICATOR, CIS_INDICATOR, T26_SDMX)
+  
+  ACTIVITY <- "C31T33"
+  insert_C31T33(TYPE_ENT, ACTIVITY, NUMBER_EMPL, UNIT_MEASURE, INDICATOR, CIS_INDICATOR, T26_SDMX)
+  
+  ACTIVITY <- "D"
+  for(j in 1:length(NUMBER_EMPL_LIST)){
+    
+    NUMBER_EMPL <- NUMBER_EMPL_LIST[j]
+    insert_D(TYPE_ENT, ACTIVITY, NUMBER_EMPL, UNIT_MEASURE, INDICATOR, CIS_INDICATOR, T26_SDMX)
+    
+  }
+  
+  ACTIVITY <- "E"
+  for(j in 1:length(NUMBER_EMPL_LIST)){
+    
+    NUMBER_EMPL <- NUMBER_EMPL_LIST[j]
+    insert_E(TYPE_ENT, ACTIVITY, NUMBER_EMPL, UNIT_MEASURE, INDICATOR, CIS_INDICATOR, T26_SDMX)
+    
+  }
+  
+  ACTIVITY <- "E36_37"
+  insert_E36T37(TYPE_ENT, ACTIVITY, NUMBER_EMPL, UNIT_MEASURE, INDICATOR, CIS_INDICATOR, T26_SDMX)
+  
+  ACTIVITY <- "E38_39"
+  insert_E38T39(TYPE_ENT, ACTIVITY, NUMBER_EMPL, UNIT_MEASURE, INDICATOR, CIS_INDICATOR, T26_SDMX)
+  
+  #ACTIVITY <- "E37T39"
+  #insert_E37T39(TYPE_ENT, ACTIVITY, NUMBER_EMPL, UNIT_MEASURE, INDICATOR, CIS_INDICATOR, T26_SDMX)
+  
+  ACTIVITY <- "G"
+  insert_G(TYPE_ENT, ACTIVITY, NUMBER_EMPL, UNIT_MEASURE, INDICATOR, CIS_INDICATOR, T26_SDMX)
+  
+  ACTIVITY <- "G46"
+  for(j in 1:length(NUMBER_EMPL_LIST)){
+    
+    NUMBER_EMPL <- NUMBER_EMPL_LIST[j]
+    insert_G46(TYPE_ENT, ACTIVITY, NUMBER_EMPL, UNIT_MEASURE, INDICATOR, CIS_INDICATOR, T26_SDMX)
+    
+  }
+  
+  ACTIVITY <- "H"
+  for(j in 1:length(NUMBER_EMPL_LIST)){
+    
+    NUMBER_EMPL <- NUMBER_EMPL_LIST[j]
+    insert_H(TYPE_ENT, ACTIVITY, NUMBER_EMPL, UNIT_MEASURE, INDICATOR, CIS_INDICATOR, T26_SDMX)
+    
+  }
+  
+  ACTIVITY <- "F"
+  insert_F(TYPE_ENT, ACTIVITY, NUMBER_EMPL, UNIT_MEASURE, INDICATOR, CIS_INDICATOR, T26_SDMX)
+  
+  ACTIVITY <- "H49T51"
+  insert_H49T51(TYPE_ENT, ACTIVITY, NUMBER_EMPL, UNIT_MEASURE, INDICATOR, CIS_INDICATOR, T26_SDMX)
+  
+  ACTIVITY <- "H52_53"
+  insert_H52T53(TYPE_ENT, ACTIVITY, NUMBER_EMPL, UNIT_MEASURE, INDICATOR, CIS_INDICATOR, T26_SDMX)
+  
+  ACTIVITY <- "I"
+  insert_I(TYPE_ENT, ACTIVITY, NUMBER_EMPL, UNIT_MEASURE, INDICATOR, CIS_INDICATOR, T26_SDMX)
+  
+  ACTIVITY <- "J"
+  for(j in 1:length(NUMBER_EMPL_LIST)){
+    
+    NUMBER_EMPL <- NUMBER_EMPL_LIST[j]
+    insert_J(TYPE_ENT, ACTIVITY, NUMBER_EMPL, UNIT_MEASURE, INDICATOR, CIS_INDICATOR, T26_SDMX)
+    
+  }
+  
+  ACTIVITY <- "J58T60"
+  insert_J58T60(TYPE_ENT, ACTIVITY, NUMBER_EMPL, UNIT_MEASURE, INDICATOR, CIS_INDICATOR, T26_SDMX)
+  
+  ACTIVITY <- "J61T63"
+  insert_J61T63(TYPE_ENT, ACTIVITY, NUMBER_EMPL, UNIT_MEASURE, INDICATOR, CIS_INDICATOR, T26_SDMX)
+  
+  #ACTIVITY <- "J62_63"
+  #insert_J62T63(TYPE_ENT, ACTIVITY, NUMBER_EMPL, UNIT_MEASURE, INDICATOR, CIS_INDICATOR, T26_SDMX)
+  
+  ACTIVITY <- "K"
+  for(j in 1:length(NUMBER_EMPL_LIST)){
+    
+    NUMBER_EMPL <- NUMBER_EMPL_LIST[j]
+    insert_K(TYPE_ENT, ACTIVITY, NUMBER_EMPL, UNIT_MEASURE, INDICATOR, CIS_INDICATOR, T26_SDMX)
+    
+  }
+  
+  ACTIVITY <- "M"
+  insert_M(TYPE_ENT, ACTIVITY, NUMBER_EMPL, UNIT_MEASURE, INDICATOR, CIS_INDICATOR, T26_SDMX)
+  
+  ACTIVITY <- "M71T73"
+  for(j in 1:length(NUMBER_EMPL_LIST)){
+    
+    NUMBER_EMPL <- NUMBER_EMPL_LIST[j]
+    insert_M71T73(TYPE_ENT, ACTIVITY, NUMBER_EMPL, UNIT_MEASURE, INDICATOR, CIS_INDICATOR, T26_SDMX)
+    
+  }
+  
+  ACTIVITY <- "N"
+  insert_N(TYPE_ENT, ACTIVITY, NUMBER_EMPL, UNIT_MEASURE, INDICATOR, CIS_INDICATOR, T26_SDMX)
+  
+  ACTIVITY <- "BTE"
+  for(j in 1:length(NUMBER_EMPL_LIST)){
+    
+    NUMBER_EMPL <- NUMBER_EMPL_LIST[j]
+    insert_BTE(TYPE_ENT, ACTIVITY, NUMBER_EMPL, UNIT_MEASURE, INDICATOR, CIS_INDICATOR, T26_SDMX)
+    
+  }
+  
+  ACTIVITY <- "GTN"
+  for(j in 1:length(NUMBER_EMPL_LIST)){
+    
+    NUMBER_EMPL <- NUMBER_EMPL_LIST[j]
+    insert_GTN(TYPE_ENT, ACTIVITY, NUMBER_EMPL, UNIT_MEASURE, INDICATOR, CIS_INDICATOR, T26_SDMX)
+    
+  }
+  
+  ACTIVITY <- "G46TM73_INN"
+  for(j in 1:length(NUMBER_EMPL_LIST)){
+    
+    NUMBER_EMPL <- NUMBER_EMPL_LIST[j]
+    insert_G46TM73_INN(TYPE_ENT, ACTIVITY, NUMBER_EMPL, UNIT_MEASURE, INDICATOR, CIS_INDICATOR, T26_SDMX)
+    
+  }
+  
+  ACTIVITY <- "_T"
+  for(j in 1:length(NUMBER_EMPL_LIST)){
+    
+    NUMBER_EMPL <- NUMBER_EMPL_LIST[j]
+    insert__T(TYPE_ENT, ACTIVITY, NUMBER_EMPL, UNIT_MEASURE, INDICATOR, CIS_INDICATOR, T26_SDMX)
+    
+  }
+  
+}
+
+TXTData <- file(description = T26_SDMX, open = "r")
+line <- readLines(con = TXTData)
+result_Aggregate <- data.frame()
+
+for (i in 2:length(line)){
+  values <- strsplit(x = line[i], split = ";");
+  df <- data.frame(matrix(unlist(values), nrow = 1), stringsAsFactors = FALSE)
+  result_Aggregate <- rbind(result_Aggregate, df)
+}
+
+names(result_Aggregate) = c("DATAFLOW", "FREQ", "TIME_PERIOD", "REF_AREA", "TABLENAME", "ACTIVITY", "NUMBER_EMPL", "TYPE_ENT", "INN_PF", "INDICATOR", "CIS_INDICATOR",	"OBS_VALUE", "UNIT_MEASURE", "UNIT_MULT", "DECIMALS",	"OBS_STATUS",	"OBS_STATUS_1",	"CONF_STATUS")
+result_Aggregate$COMMENT_OBS <- ""
+result_Aggregate <- result_Aggregate[(result_Aggregate$ACTIVITY != "F41" & result_Aggregate$ACTIVITY != "F42" & result_Aggregate$ACTIVITY != "F43" & result_Aggregate$ACTIVITY != "I55" & result_Aggregate$ACTIVITY != "I56") & (result_Aggregate$NUMBER_EMPL == "_T" | result_Aggregate$ACTIVITY == "M71T73" | result_Aggregate$ACTIVITY == "K" | result_Aggregate$ACTIVITY == "J" | result_Aggregate$ACTIVITY == "H" | result_Aggregate$ACTIVITY == "G46" | result_Aggregate$ACTIVITY == "A" | result_Aggregate$ACTIVITY == "B" | result_Aggregate$ACTIVITY == "C" | result_Aggregate$ACTIVITY == "D" | result_Aggregate$ACTIVITY == "E" | result_Aggregate$ACTIVITY == "I" | result_Aggregate$ACTIVITY == "BTE" | result_Aggregate$ACTIVITY == "GTN" | result_Aggregate$ACTIVITY == "G46TM73_INN" | result_Aggregate$ACTIVITY == "_T"), ]
+result_Aggregate <- unique(result_Aggregate) #G46 miatt
+nrow(result_Aggregate)
+result_Aggregate[, "OBS_VALUE"] <- gsub("\\.", ",", result_Aggregate[, "OBS_VALUE"])
+write.table(result_Aggregate, T26_SDMX_RESULT, sep = ";", quote = FALSE, row.names = FALSE, append = FALSE)
+
+
+expression <- c("is.na(NINN$FUND_IG_LOAN_RNDINN) == FALSE & NINN$FUND_IG_LOAN_RNDINN == 1",
+                "NINN$M092 %in% INFL_TKNOW$M092", 
+                "NINN$M092 %in% INFL_FINRES$M092", 
+                "NINN$M092 %in% INFL_PER$M092", 
+                "NINN$M092 %in% INFL_SOURC$M092", 
+                "is.na(NINN$INFL_TKNOW_NAT) == FALSE & NINN$INFL_TKNOW_NAT == 1", 
+                "is.na(NINN$INFL_FINRES_NAT) == FALSE & NINN$INFL_FINRES_NAT == 1", 
+                "is.na(NINN$INFL_PER_NAT) == FALSE & NINN$INFL_PER_NAT == 1", 
+                "is.na(NINN$INFL_SOURC_NAT) == FALSE & NINN$INFL_SOURC_NAT == 1", 
+                "is.na(NINN$INFL_TKNOW_FOR) == FALSE & NINN$INFL_TKNOW_FOR == 1", 
+                "is.na(NINN$INFL_FINRES_FOR) == FALSE & NINN$INFL_FINRES_FOR == 1", 
+                "is.na(NINN$INFL_PER_FOR) == FALSE & NINN$INFL_PER_FOR == 1", 
+                "is.na(NINN$INFL_SOURC_FOR) == FALSE & NINN$INFL_SOURC_FOR == 1", 
+                "is.na(NINN$INFL_NTKNOW) == FALSE & NINN$INFL_NTKNOW == 1", 
+                "is.na(NINN$INFL_NFINRES) == FALSE & NINN$INFL_NFINRES == 1", 
+                "is.na(NINN$INFL_NPER) == FALSE & NINN$INFL_NPER == 1", 
+                "is.na(NINN$INFL_NSOURC) == FALSE & NINN$INFL_NSOURC == 1", 
+                "NINN$M092 %in% OUTFL_TKNOW$M092", 
+                "NINN$M092 %in% OUTFL_FINRES$M092", 
+                "NINN$M092 %in% OUTFL_PER$M092", 
+                "NINN$M092 %in% OUTFL_SOURC$M092", 
+                "is.na(NINN$OUTFL_TKNOW_NAT) == FALSE & NINN$OUTFL_TKNOW_NAT == 1", 
+                "is.na(NINN$OUTFL_FINRES_NAT) == FALSE & NINN$OUTFL_FINRES_NAT == 1", 
+                "is.na(NINN$OUTFL_PER_NAT) == FALSE & NINN$OUTFL_PER_NAT == 1", 
+                "is.na(NINN$OUTFL_SOURC_NAT) == FALSE & NINN$OUTFL_SOURC_NAT == 1", 
+                "is.na(NINN$OUTFL_TKNOW_FOR) == FALSE & NINN$OUTFL_TKNOW_FOR == 1", 
+                "is.na(NINN$OUTFL_FINRES_FOR) == FALSE & NINN$OUTFL_FINRES_FOR == 1", 
+                "is.na(NINN$OUTFL_PER_FOR) == FALSE & NINN$OUTFL_PER_FOR == 1", 
+                "is.na(NINN$OUTFL_SOURC_FOR) == FALSE & NINN$OUTFL_SOURC_FOR == 1", 
+                "is.na(NINN$OUTFL_NTKNOW) == FALSE & NINN$OUTFL_NTKNOW == 1", 
+                "is.na(NINN$OUTFL_NFINRES) == FALSE & NINN$OUTFL_NFINRES == 1", 
+                "is.na(NINN$OUTFL_NPER) == FALSE & NINN$OUTFL_NPER == 1", 
+                "is.na(NINN$OUTFL_NSOURC) == FALSE & NINN$OUTFL_NSOURC == 1")
+
+T26_SDMX <- "T26_SDMX_NINN.txt"
+T26_SDMX_RESULT <- "T26_SDMX_NINN_RESULT.txt"
+
+TYPE_ENT <- "NINN"
+
+cat(paste("DATAFLOW", "FREQ", "TIME_PERIOD", "REF_AREA", "TABLENAME", "ACTIVITY", "NUMBER_EMPL", "TYPE_ENT", "INN_PF", "INDICATOR", "CIS_INDICATOR",	"OBS_VALUE", "UNIT_MEASURE", "UNIT_MULT", "DECIMALS",	"OBS_STATUS",	"OBS_STATUS_1",	"CONF_STATUS", "COMMENT_OBS", sep = ";"), sep = "\n", file = T26_SDMX, append = FALSE)
+for(num in 1:length(expression)){
+  
+  NINN_DT <- data.table(NINN[eval(parse(text = expression[num])), ])
+  NINN_DT <- NINN_DT[, .(ENT22_SULYOZOTT=sum(VGMA001_SULY)), by = "M065_RETEG1,M0581_2J"]
+  
+  if(nrow(NINN_DT) != 0){
+    
+    NINN_Ordered <- cbind(NINN_DT, stringsAsFactors = FALSE)
+    NINN_Ordered <- NINN_Ordered[order(NINN_Ordered$M065_RETEG1, NINN_Ordered$M0581_2J), ]
+    
+    CIS_INDICATOR <- expression2[num]
+    
+    for(i in 1:nrow(NINN_Ordered)){
+      
+      if(NINN_Ordered[i, 1] == "KI"){
+        
+        NUMBER_EMPL <- "E10T49"
+        
+      } else if(NINN_Ordered[i, 1] == "KO"){
+        
+        NUMBER_EMPL <- "E50T249"
+        
+      } else{
+        
+        NUMBER_EMPL <- "E_GE250"   
+        
+      }
+      
+      ACTIVITY <- get_NACE(NINN_Ordered[i, 2])
+      OBS_VALUE <- NINN_Ordered[i, 3]
+      cat(paste(DATAFLOW, FREQ, TIME_PERIOD, REF_AREA, TABLENAME, ACTIVITY, NUMBER_EMPL, TYPE_ENT, INN_PF, INDICATOR, CIS_INDICATOR,	OBS_VALUE, UNIT_MEASURE, UNIT_MULT, DECIMALS,	OBS_STATUS,	OBS_STATUS_1,	CONF_STATUS, COMMENT_OBS, sep = ";"), sep = "\n", file = T26_SDMX, append = TRUE)
+      
+    }
+  }
+}
+
+TXTData <- file(description = T26_SDMX, open = "r")
+line <- readLines(con = TXTData)
+Aggregate <- data.frame()
+
+for (i in 2:length(line)){
+  values <- strsplit(x = line[i], split = ";");
+  df <- data.frame(matrix(unlist(values), nrow = 1), stringsAsFactors = FALSE)
+  Aggregate <- rbind(Aggregate, df)
+}
+
+names(Aggregate) = c("DATAFLOW", "FREQ", "TIME_PERIOD", "REF_AREA", "TABLENAME", "ACTIVITY", "NUMBER_EMPL", "TYPE_ENT", "INN_PF", "INDICATOR", "CIS_INDICATOR",	"OBS_VALUE", "UNIT_MEASURE", "UNIT_MULT", "DECIMALS",	"OBS_STATUS",	"OBS_STATUS_1",	"CONF_STATUS")
+Aggregate$COMMENT_OBS <- "" #"COMMENT_OBS" oszlop nincs
+NUMBER_EMPL <- "_T"
+for(num in 1:length(expression)){
+  
+  CIS_INDICATOR <- expression2[num]
+  
+  for(j in 1:length(ACTIVITY_LIST)){
+    
+    ACTIVITY <- ACTIVITY_LIST[j]
+    insert_Total(TYPE_ENT, ACTIVITY, NUMBER_EMPL, UNIT_MEASURE, INDICATOR, CIS_INDICATOR, T26_SDMX)
+    
+  }
+  
+  TXTData <- file(description = T26_SDMX, open = "r")
+  line <- readLines(con = TXTData)
+  result_Aggregate <- data.frame()
+  
+  for (i in 2:length(line)){
+    values <- strsplit(x = line[i], split = ";");
+    df <- data.frame(matrix(unlist(values), nrow = 1), stringsAsFactors = FALSE)
+    result_Aggregate <- rbind(result_Aggregate, df)
+  }
+  
+  names(result_Aggregate) = c("DATAFLOW", "FREQ", "TIME_PERIOD", "REF_AREA", "TABLENAME", "ACTIVITY", "NUMBER_EMPL", "TYPE_ENT", "INN_PF", "INDICATOR", "CIS_INDICATOR",	"OBS_VALUE", "UNIT_MEASURE", "UNIT_MULT", "DECIMALS",	"OBS_STATUS",	"OBS_STATUS_1",	"CONF_STATUS")
+  result_Aggregate$COMMENT_OBS <- ""
+  result_Aggregate <- result_Aggregate[result_Aggregate$NUMBER_EMPL == "_T", ]
+  nrow(result_Aggregate)
+  result_Aggregate[, "OBS_VALUE"] <- gsub("\\.", ",", result_Aggregate[, "OBS_VALUE"])
+  write.table(result_Aggregate, T26_SDMX_RESULT, sep = ";", quote = FALSE, row.names = FALSE, append = FALSE)
+  
+  #Összetett értékek számítása több ACTIVITY kód alapján az összes vállalatcsoportra
+  ACTIVITY <- "A"
+  NUMBER_EMPL <- "_T"
+  insert_A(TYPE_ENT, ACTIVITY, NUMBER_EMPL, UNIT_MEASURE, INDICATOR, CIS_INDICATOR, T26_SDMX)
+  
+  ACTIVITY <- "B"
+  for(j in 1:length(NUMBER_EMPL_LIST)){
+    
+    NUMBER_EMPL <- NUMBER_EMPL_LIST[j]
+    insert_B(TYPE_ENT, ACTIVITY, NUMBER_EMPL, UNIT_MEASURE, INDICATOR, CIS_INDICATOR, T26_SDMX)
+    
+  }
+  
+  ACTIVITY <- "C"
+  for(j in 1:length(NUMBER_EMPL_LIST)){
+    
+    NUMBER_EMPL <- NUMBER_EMPL_LIST[j]
+    insert_C(TYPE_ENT, ACTIVITY, NUMBER_EMPL, UNIT_MEASURE, INDICATOR, CIS_INDICATOR, T26_SDMX)
+    
+  }
+  
+  ACTIVITY <- "C10T12"
+  insert_C10T12(TYPE_ENT, ACTIVITY, NUMBER_EMPL, UNIT_MEASURE, INDICATOR, CIS_INDICATOR, T26_SDMX)
+  
+  ACTIVITY <- "C13T15"
+  insert_C13T15(TYPE_ENT, ACTIVITY, NUMBER_EMPL, UNIT_MEASURE, INDICATOR, CIS_INDICATOR, T26_SDMX)
+  
+  ACTIVITY <- "C16T18"
+  insert_C16T18(TYPE_ENT, ACTIVITY, NUMBER_EMPL, UNIT_MEASURE, INDICATOR, CIS_INDICATOR, T26_SDMX)
+  
+  #ACTIVITY <- "C19_20"
+  #insert_C19T20(TYPE_ENT, ACTIVITY, NUMBER_EMPL, UNIT_MEASURE, INDICATOR, CIS_INDICATOR, T26_SDMX)
+  
+  ACTIVITY <- "C19T21"
+  insert_C19T21(TYPE_ENT, ACTIVITY, NUMBER_EMPL, UNIT_MEASURE, INDICATOR, CIS_INDICATOR, T26_SDMX)
+  
+  #ACTIVITY <- "C19T22"
+  #insert_C19T22(TYPE_ENT, ACTIVITY, NUMBER_EMPL, UNIT_MEASURE, INDICATOR, CIS_INDICATOR, T26_SDMX)
+  
+  ACTIVITY <- "C22_23"
+  insert_C22T23(TYPE_ENT, ACTIVITY, NUMBER_EMPL, UNIT_MEASURE, INDICATOR, CIS_INDICATOR, T26_SDMX)
+  
+  ACTIVITY <- "C24_25"
+  insert_C24T25(TYPE_ENT, ACTIVITY, NUMBER_EMPL, UNIT_MEASURE, INDICATOR, CIS_INDICATOR, T26_SDMX)
+  
+  ACTIVITY <- "C26T28"
+  insert_C26T28(TYPE_ENT, ACTIVITY, NUMBER_EMPL, UNIT_MEASURE, INDICATOR, CIS_INDICATOR, T26_SDMX)
+  
+  ACTIVITY <- "C29_30"
+  insert_C29T30(TYPE_ENT, ACTIVITY, NUMBER_EMPL, UNIT_MEASURE, INDICATOR, CIS_INDICATOR, T26_SDMX)
+  
+  #ACTIVITY <- "C25T30"
+  #insert_C25T30(TYPE_ENT, ACTIVITY, NUMBER_EMPL, UNIT_MEASURE, INDICATOR, CIS_INDICATOR, T26_SDMX)
+  
+  ACTIVITY <- "C31T33"
+  insert_C31T33(TYPE_ENT, ACTIVITY, NUMBER_EMPL, UNIT_MEASURE, INDICATOR, CIS_INDICATOR, T26_SDMX)
+  
+  ACTIVITY <- "D"
+  for(j in 1:length(NUMBER_EMPL_LIST)){
+    
+    NUMBER_EMPL <- NUMBER_EMPL_LIST[j]
+    insert_D(TYPE_ENT, ACTIVITY, NUMBER_EMPL, UNIT_MEASURE, INDICATOR, CIS_INDICATOR, T26_SDMX)
+    
+  }
+  
+  ACTIVITY <- "E"
+  for(j in 1:length(NUMBER_EMPL_LIST)){
+    
+    NUMBER_EMPL <- NUMBER_EMPL_LIST[j]
+    insert_E(TYPE_ENT, ACTIVITY, NUMBER_EMPL, UNIT_MEASURE, INDICATOR, CIS_INDICATOR, T26_SDMX)
+    
+  }
+  
+  ACTIVITY <- "E36_37"
+  insert_E36T37(TYPE_ENT, ACTIVITY, NUMBER_EMPL, UNIT_MEASURE, INDICATOR, CIS_INDICATOR, T26_SDMX)
+  
+  ACTIVITY <- "E38_39"
+  insert_E38T39(TYPE_ENT, ACTIVITY, NUMBER_EMPL, UNIT_MEASURE, INDICATOR, CIS_INDICATOR, T26_SDMX)
+  
+  #ACTIVITY <- "E37T39"
+  #insert_E37T39(TYPE_ENT, ACTIVITY, NUMBER_EMPL, UNIT_MEASURE, INDICATOR, CIS_INDICATOR, T26_SDMX)
+  
+  ACTIVITY <- "G"
+  insert_G(TYPE_ENT, ACTIVITY, NUMBER_EMPL, UNIT_MEASURE, INDICATOR, CIS_INDICATOR, T26_SDMX)
+  
+  ACTIVITY <- "G46"
+  for(j in 1:length(NUMBER_EMPL_LIST)){
+    
+    NUMBER_EMPL <- NUMBER_EMPL_LIST[j]
+    insert_G46(TYPE_ENT, ACTIVITY, NUMBER_EMPL, UNIT_MEASURE, INDICATOR, CIS_INDICATOR, T26_SDMX)
+    
+  }
+  
+  ACTIVITY <- "H"
+  for(j in 1:length(NUMBER_EMPL_LIST)){
+    
+    NUMBER_EMPL <- NUMBER_EMPL_LIST[j]
+    insert_H(TYPE_ENT, ACTIVITY, NUMBER_EMPL, UNIT_MEASURE, INDICATOR, CIS_INDICATOR, T26_SDMX)
+    
+  }
+  
+  ACTIVITY <- "F"
+  insert_F(TYPE_ENT, ACTIVITY, NUMBER_EMPL, UNIT_MEASURE, INDICATOR, CIS_INDICATOR, T26_SDMX)
+  
+  ACTIVITY <- "H49T51"
+  insert_H49T51(TYPE_ENT, ACTIVITY, NUMBER_EMPL, UNIT_MEASURE, INDICATOR, CIS_INDICATOR, T26_SDMX)
+  
+  ACTIVITY <- "H52_53"
+  insert_H52T53(TYPE_ENT, ACTIVITY, NUMBER_EMPL, UNIT_MEASURE, INDICATOR, CIS_INDICATOR, T26_SDMX)
+  
+  ACTIVITY <- "I"
+  insert_I(TYPE_ENT, ACTIVITY, NUMBER_EMPL, UNIT_MEASURE, INDICATOR, CIS_INDICATOR, T26_SDMX)
+  
+  ACTIVITY <- "J"
+  for(j in 1:length(NUMBER_EMPL_LIST)){
+    
+    NUMBER_EMPL <- NUMBER_EMPL_LIST[j]
+    insert_J(TYPE_ENT, ACTIVITY, NUMBER_EMPL, UNIT_MEASURE, INDICATOR, CIS_INDICATOR, T26_SDMX)
+    
+  }
+  
+  ACTIVITY <- "J58T60"
+  insert_J58T60(TYPE_ENT, ACTIVITY, NUMBER_EMPL, UNIT_MEASURE, INDICATOR, CIS_INDICATOR, T26_SDMX)
+  
+  ACTIVITY <- "J61T63"
+  insert_J61T63(TYPE_ENT, ACTIVITY, NUMBER_EMPL, UNIT_MEASURE, INDICATOR, CIS_INDICATOR, T26_SDMX)
+  
+  #ACTIVITY <- "J62_63"
+  #insert_J62T63(TYPE_ENT, ACTIVITY, NUMBER_EMPL, UNIT_MEASURE, INDICATOR, CIS_INDICATOR, T26_SDMX)
+  
+  ACTIVITY <- "K"
+  for(j in 1:length(NUMBER_EMPL_LIST)){
+    
+    NUMBER_EMPL <- NUMBER_EMPL_LIST[j]
+    insert_K(TYPE_ENT, ACTIVITY, NUMBER_EMPL, UNIT_MEASURE, INDICATOR, CIS_INDICATOR, T26_SDMX)
+    
+  }
+  
+  ACTIVITY <- "M"
+  insert_M(TYPE_ENT, ACTIVITY, NUMBER_EMPL, UNIT_MEASURE, INDICATOR, CIS_INDICATOR, T26_SDMX)
+  
+  ACTIVITY <- "M71T73"
+  for(j in 1:length(NUMBER_EMPL_LIST)){
+    
+    NUMBER_EMPL <- NUMBER_EMPL_LIST[j]
+    insert_M71T73(TYPE_ENT, ACTIVITY, NUMBER_EMPL, UNIT_MEASURE, INDICATOR, CIS_INDICATOR, T26_SDMX)
+    
+  }
+  
+  ACTIVITY <- "N"
+  insert_N(TYPE_ENT, ACTIVITY, NUMBER_EMPL, UNIT_MEASURE, INDICATOR, CIS_INDICATOR, T26_SDMX)
+  
+  ACTIVITY <- "BTE"
+  for(j in 1:length(NUMBER_EMPL_LIST)){
+    
+    NUMBER_EMPL <- NUMBER_EMPL_LIST[j]
+    insert_BTE(TYPE_ENT, ACTIVITY, NUMBER_EMPL, UNIT_MEASURE, INDICATOR, CIS_INDICATOR, T26_SDMX)
+    
+  }
+  
+  ACTIVITY <- "GTN"
+  for(j in 1:length(NUMBER_EMPL_LIST)){
+    
+    NUMBER_EMPL <- NUMBER_EMPL_LIST[j]
+    insert_GTN(TYPE_ENT, ACTIVITY, NUMBER_EMPL, UNIT_MEASURE, INDICATOR, CIS_INDICATOR, T26_SDMX)
+    
+  }
+  
+  ACTIVITY <- "G46TM73_INN"
+  for(j in 1:length(NUMBER_EMPL_LIST)){
+    
+    NUMBER_EMPL <- NUMBER_EMPL_LIST[j]
+    insert_G46TM73_INN(TYPE_ENT, ACTIVITY, NUMBER_EMPL, UNIT_MEASURE, INDICATOR, CIS_INDICATOR, T26_SDMX)
+    
+  }
+  
+  ACTIVITY <- "_T"
+  for(j in 1:length(NUMBER_EMPL_LIST)){
+    
+    NUMBER_EMPL <- NUMBER_EMPL_LIST[j]
+    insert__T(TYPE_ENT, ACTIVITY, NUMBER_EMPL, UNIT_MEASURE, INDICATOR, CIS_INDICATOR, T26_SDMX)
+    
+  }
+  
+}
+
+TXTData <- file(description = T26_SDMX, open = "r")
+line <- readLines(con = TXTData)
+result_Aggregate <- data.frame()
+
+for (i in 2:length(line)){
+  values <- strsplit(x = line[i], split = ";");
+  df <- data.frame(matrix(unlist(values), nrow = 1), stringsAsFactors = FALSE)
+  result_Aggregate <- rbind(result_Aggregate, df)
+}
+
+names(result_Aggregate) = c("DATAFLOW", "FREQ", "TIME_PERIOD", "REF_AREA", "TABLENAME", "ACTIVITY", "NUMBER_EMPL", "TYPE_ENT", "INN_PF", "INDICATOR", "CIS_INDICATOR",	"OBS_VALUE", "UNIT_MEASURE", "UNIT_MULT", "DECIMALS",	"OBS_STATUS",	"OBS_STATUS_1",	"CONF_STATUS")
+result_Aggregate$COMMENT_OBS <- ""
+result_Aggregate <- result_Aggregate[(result_Aggregate$ACTIVITY != "F41" & result_Aggregate$ACTIVITY != "F42" & result_Aggregate$ACTIVITY != "F43" & result_Aggregate$ACTIVITY != "I55" & result_Aggregate$ACTIVITY != "I56") & (result_Aggregate$NUMBER_EMPL == "_T" | result_Aggregate$ACTIVITY == "M71T73" | result_Aggregate$ACTIVITY == "K" | result_Aggregate$ACTIVITY == "J" | result_Aggregate$ACTIVITY == "H" | result_Aggregate$ACTIVITY == "G46" | result_Aggregate$ACTIVITY == "A" | result_Aggregate$ACTIVITY == "B" | result_Aggregate$ACTIVITY == "C" | result_Aggregate$ACTIVITY == "D" | result_Aggregate$ACTIVITY == "E" | result_Aggregate$ACTIVITY == "I" | result_Aggregate$ACTIVITY == "BTE" | result_Aggregate$ACTIVITY == "GTN" | result_Aggregate$ACTIVITY == "G46TM73_INN" | result_Aggregate$ACTIVITY == "_T"), ]
+result_Aggregate <- unique(result_Aggregate) #G46 miatt
+nrow(result_Aggregate)
+result_Aggregate[, "OBS_VALUE"] <- gsub("\\.", ",", result_Aggregate[, "OBS_VALUE"])
+write.table(result_Aggregate, T26_SDMX_RESULT, sep = ";", quote = FALSE, row.names = FALSE, append = FALSE)
+
+
+T26_SDMX <- "T26_SDMX_INN.txt"
+T26_SDMX_RESULT <- "T26_SDMX_ALL_RESULT.txt"
+T26_SDMX_FINAL_RESULT <- "T26_SDMX_ALL_FINAL_RESULT.txt"
+TXTData <- file(description = T26_SDMX, open = "r")
+line <- readLines(con = TXTData)
+result_Aggregate <- data.frame()
+result_T26 <- data.frame()
+
+for (i in 2:length(line)){
+  values <- strsplit(x = line[i], split = ";");
+  df <- data.frame(matrix(unlist(values), nrow = 1), stringsAsFactors = FALSE)
+  result_Aggregate <- rbind(result_Aggregate, df)
+}
+
+names(result_Aggregate) = c("DATAFLOW", "FREQ", "TIME_PERIOD", "REF_AREA", "TABLENAME", "ACTIVITY", "NUMBER_EMPL", "TYPE_ENT", "INN_PF", "INDICATOR", "CIS_INDICATOR",	"OBS_VALUE", "UNIT_MEASURE", "UNIT_MULT", "DECIMALS",	"OBS_STATUS",	"OBS_STATUS_1",	"CONF_STATUS")
+result_Aggregate$COMMENT_OBS <- ""
+result_Aggregate <- result_Aggregate[(result_Aggregate$ACTIVITY != "F41" & result_Aggregate$ACTIVITY != "F42" & result_Aggregate$ACTIVITY != "F43" & result_Aggregate$ACTIVITY != "I55" & result_Aggregate$ACTIVITY != "I56") & (result_Aggregate$NUMBER_EMPL == "_T" | result_Aggregate$ACTIVITY == "M71T73" | result_Aggregate$ACTIVITY == "K" | result_Aggregate$ACTIVITY == "J" | result_Aggregate$ACTIVITY == "H" | result_Aggregate$ACTIVITY == "G46" | result_Aggregate$ACTIVITY == "A" | result_Aggregate$ACTIVITY == "B" | result_Aggregate$ACTIVITY == "C" | result_Aggregate$ACTIVITY == "D" | result_Aggregate$ACTIVITY == "E" | result_Aggregate$ACTIVITY == "I" | result_Aggregate$ACTIVITY == "BTE" | result_Aggregate$ACTIVITY == "GTN" | result_Aggregate$ACTIVITY == "G46TM73_INN" | result_Aggregate$ACTIVITY == "_T"), ]
+result_Aggregate <- unique(result_Aggregate) #G46 miatt
+nrow(result_Aggregate)
+
+result_T26 <- rbind(result_T26, result_Aggregate)
+
+T26_SDMX <- "T26_SDMX_NINN.txt"
+TXTData <- file(description = T26_SDMX, open = "r")
+line <- readLines(con = TXTData)
+result_Aggregate <- data.frame()
+
+for (i in 2:length(line)){
+  values <- strsplit(x = line[i], split = ";");
+  df <- data.frame(matrix(unlist(values), nrow = 1), stringsAsFactors = FALSE)
+  result_Aggregate <- rbind(result_Aggregate, df)
+}
+
+names(result_Aggregate) = c("DATAFLOW", "FREQ", "TIME_PERIOD", "REF_AREA", "TABLENAME", "ACTIVITY", "NUMBER_EMPL", "TYPE_ENT", "INN_PF", "INDICATOR", "CIS_INDICATOR",	"OBS_VALUE", "UNIT_MEASURE", "UNIT_MULT", "DECIMALS",	"OBS_STATUS",	"OBS_STATUS_1",	"CONF_STATUS")
+result_Aggregate$COMMENT_OBS <- ""
+result_Aggregate <- result_Aggregate[(result_Aggregate$ACTIVITY != "F41" & result_Aggregate$ACTIVITY != "F42" & result_Aggregate$ACTIVITY != "F43" & result_Aggregate$ACTIVITY != "I55" & result_Aggregate$ACTIVITY != "I56") & (result_Aggregate$NUMBER_EMPL == "_T" | result_Aggregate$ACTIVITY == "M71T73" | result_Aggregate$ACTIVITY == "K" | result_Aggregate$ACTIVITY == "J" | result_Aggregate$ACTIVITY == "H" | result_Aggregate$ACTIVITY == "G46" | result_Aggregate$ACTIVITY == "A" | result_Aggregate$ACTIVITY == "B" | result_Aggregate$ACTIVITY == "C" | result_Aggregate$ACTIVITY == "D" | result_Aggregate$ACTIVITY == "E" | result_Aggregate$ACTIVITY == "I" | result_Aggregate$ACTIVITY == "BTE" | result_Aggregate$ACTIVITY == "GTN" | result_Aggregate$ACTIVITY == "G46TM73_INN" | result_Aggregate$ACTIVITY == "_T"), ]
+result_Aggregate <- unique(result_Aggregate) #G46 miatt
+nrow(result_Aggregate)
+
+result_T26 <- rbind(result_T26, result_Aggregate)
+
+
+result_T26$OBS_VALUE <- as.character(result_T26$OBS_VALUE)
+result_T26[, "OBS_VALUE"] <- gsub("\\.", ",", result_T26[, "OBS_VALUE"])
+write.table(result_T26, T26_SDMX_RESULT, sep = ";", quote = FALSE, row.names = FALSE, append = FALSE)
+
+result_T26[, "OBS_VALUE"] <- gsub(",", "\\.", result_T26[, "OBS_VALUE"])
+result_T26$OBS_VALUE <- as.numeric(result_T26$OBS_VALUE)
+result_T26_DT <- data.table(result_T26)
+result_T26_DT <- result_T26_DT[, .(SUM_OBS_VALUE=sum(OBS_VALUE)), by = "DATAFLOW,FREQ,TIME_PERIOD,REF_AREA,TABLENAME,ACTIVITY,NUMBER_EMPL,INN_PF,INDICATOR,CIS_INDICATOR,UNIT_MEASURE,UNIT_MULT,DECIMALS"]
+setnames(result_T26_DT, "SUM_OBS_VALUE", "OBS_VALUE")
+
+result_T26_DT_FINAL <- cbind(result_T26_DT[, 1:7], stringsAsFactors = FALSE)
+result_T26_DT_FINAL$TYPE_ENT <- "_T"
+result_T26_DT_FINAL <- cbind(result_T26_DT_FINAL, result_T26_DT[, c(8:10, 14, 11:13)], stringsAsFactors = FALSE)
+result_T26_DT_FINAL$OBS_STATUS <- ""
+result_T26_DT_FINAL$OBS_STATUS_1 <- ""
+result_T26_DT_FINAL$CONF_STATUS <- ""
+result_T26_DT_FINAL$COMMENT_OBS <- ""
+result_T26_DT_FINAL <- as.data.frame(result_T26_DT_FINAL)
+result_T26_DT_FINAL$OBS_VALUE <- as.character(result_T26_DT_FINAL$OBS_VALUE)
+result_T26_DT_FINAL[, "OBS_VALUE"] <- gsub("\\.", ",", result_T26_DT_FINAL[, "OBS_VALUE"])
+result_T26$OBS_VALUE <- as.character(result_T26$OBS_VALUE)
+result_T26[, "OBS_VALUE"] <- gsub("\\.", ",", result_T26[, "OBS_VALUE"])
+result_T26$COMMENT_OBS <- ""
+
+result_T26_DT_FINAL[result_T26_DT_FINAL$ACTIVITY == "A" | result_T26_DT_FINAL$ACTIVITY == "A01" | result_T26_DT_FINAL$ACTIVITY == "A02" | result_T26_DT_FINAL$ACTIVITY == "A03" | result_T26_DT_FINAL$ACTIVITY == "F" | result_T26_DT_FINAL$ACTIVITY == "G45" | result_T26_DT_FINAL$ACTIVITY == "G47" | result_T26_DT_FINAL$ACTIVITY == "I" | result_T26_DT_FINAL$ACTIVITY == "L" | result_T26_DT_FINAL$ACTIVITY == "M69" | result_T26_DT_FINAL$ACTIVITY == "M70" | result_T26_DT_FINAL$ACTIVITY == "M74" | result_T26_DT_FINAL$ACTIVITY == "M75" | result_T26_DT_FINAL$ACTIVITY == "N" | result_T26_DT_FINAL$ACTIVITY == "N77" | result_T26_DT_FINAL$ACTIVITY == "N78" | result_T26_DT_FINAL$ACTIVITY == "N79" | result_T26_DT_FINAL$ACTIVITY == "N80" | result_T26_DT_FINAL$ACTIVITY == "N81" | result_T26_DT_FINAL$ACTIVITY == "N82", "OBS_VALUE"] <- ""
+result_T26[result_T26$ACTIVITY == "A" | result_T26$ACTIVITY == "A01" | result_T26$ACTIVITY == "A02" | result_T26$ACTIVITY == "A03" | result_T26$ACTIVITY == "F" | result_T26$ACTIVITY == "G45" | result_T26$ACTIVITY == "G47" | result_T26$ACTIVITY == "I" | result_T26$ACTIVITY == "L" | result_T26$ACTIVITY == "M69" | result_T26$ACTIVITY == "M70" | result_T26$ACTIVITY == "M74" | result_T26$ACTIVITY == "M75" | result_T26$ACTIVITY == "N" | result_T26$ACTIVITY == "N77" | result_T26$ACTIVITY == "N78" | result_T26$ACTIVITY == "N79" | result_T26$ACTIVITY == "N80" | result_T26$ACTIVITY == "N81" | result_T26$ACTIVITY == "N82", "OBS_VALUE"] <- ""
+result_T26_DT_FINAL <- subset(result_T26_DT_FINAL, ACTIVITY != "GTN" | (ACTIVITY == "GTN" & (NUMBER_EMPL == "_T")))
+result_T26 <- subset(result_T26, ACTIVITY != "GTN" | (ACTIVITY == "GTN" & (NUMBER_EMPL == "_T")))
+result_T26_DT_FINAL <- subset(result_T26_DT_FINAL, ACTIVITY != "G" & ACTIVITY != "M")
+result_T26 <- subset(result_T26, ACTIVITY != "G" & ACTIVITY != "M")
+
+write.table(rbind(result_T26_DT_FINAL, result_T26), T26_SDMX_FINAL_RESULT, sep = ";", quote = FALSE, row.names = FALSE, append = FALSE)
+
+set_ENT_Profile("as.numeric(FUND_IG_LOAN_RNDINN)", "T26", T26_SDMX_FINAL_RESULT)
+set_ENT_Profile("as.numeric(INFL_FINRES)", "T26", T26_SDMX_FINAL_RESULT)
+set_ENT_Profile("as.numeric(INFL_FINRES_FOR)", "T26", T26_SDMX_FINAL_RESULT)
+set_ENT_Profile("as.numeric(INFL_FINRES_NAT)", "T26", T26_SDMX_FINAL_RESULT)
+set_ENT_Profile("as.numeric(INFL_NFINRES)", "T26", T26_SDMX_FINAL_RESULT)
+set_ENT_Profile("as.numeric(INFL_NPER)", "T26", T26_SDMX_FINAL_RESULT)
+set_ENT_Profile("as.numeric(INFL_NSOURC)", "T26", T26_SDMX_FINAL_RESULT)
+set_ENT_Profile("as.numeric(INFL_NTKNOW)", "T26", T26_SDMX_FINAL_RESULT)
+set_ENT_Profile("as.numeric(INFL_PER)", "T26", T26_SDMX_FINAL_RESULT)
+set_ENT_Profile("as.numeric(INFL_PER_FOR)", "T26", T26_SDMX_FINAL_RESULT)
+set_ENT_Profile("as.numeric(INFL_PER_NAT)", "T26", T26_SDMX_FINAL_RESULT)
+set_ENT_Profile("as.numeric(INFL_SOURC)", "T26", T26_SDMX_FINAL_RESULT)
+set_ENT_Profile("as.numeric(INFL_SOURC_FOR)", "T26", T26_SDMX_FINAL_RESULT)
+set_ENT_Profile("as.numeric(INFL_SOURC_NAT)", "T26", T26_SDMX_FINAL_RESULT)
+set_ENT_Profile("as.numeric(INFL_TKNOW)", "T26", T26_SDMX_FINAL_RESULT)
+set_ENT_Profile("as.numeric(INFL_TKNOW_FOR)", "T26", T26_SDMX_FINAL_RESULT)
+set_ENT_Profile("as.numeric(INFL_TKNOW_NAT)", "T26", T26_SDMX_FINAL_RESULT)
+set_ENT_Profile("as.numeric(OUTFL_FINRES)", "T26", T26_SDMX_FINAL_RESULT)
+set_ENT_Profile("as.numeric(OUTFL_FINRES_FOR)", "T26", T26_SDMX_FINAL_RESULT)
+set_ENT_Profile("as.numeric(OUTFL_FINRES_NAT)", "T26", T26_SDMX_FINAL_RESULT)
+set_ENT_Profile("as.numeric(OUTFL_NFINRES)", "T26", T26_SDMX_FINAL_RESULT)
+set_ENT_Profile("as.numeric(OUTFL_NPER)", "T26", T26_SDMX_FINAL_RESULT)
+set_ENT_Profile("as.numeric(OUTFL_NSOURC)", "T26", T26_SDMX_FINAL_RESULT)
+set_ENT_Profile("as.numeric(OUTFL_NTKNOW)", "T26", T26_SDMX_FINAL_RESULT)
+set_ENT_Profile("as.numeric(OUTFL_PER)", "T26", T26_SDMX_FINAL_RESULT)
+set_ENT_Profile("as.numeric(OUTFL_PER_FOR)", "T26", T26_SDMX_FINAL_RESULT)
+set_ENT_Profile("as.numeric(OUTFL_PER_NAT)", "T26", T26_SDMX_FINAL_RESULT)
+set_ENT_Profile("as.numeric(OUTFL_SOURC)", "T26", T26_SDMX_FINAL_RESULT)
+set_ENT_Profile("as.numeric(OUTFL_SOURC_FOR)", "T26", T26_SDMX_FINAL_RESULT)
+set_ENT_Profile("as.numeric(OUTFL_SOURC_NAT)", "T26", T26_SDMX_FINAL_RESULT)
+set_ENT_Profile("as.numeric(OUTFL_TKNOW)", "T26", T26_SDMX_FINAL_RESULT)
+set_ENT_Profile("as.numeric(OUTFL_TKNOW_FOR)", "T26", T26_SDMX_FINAL_RESULT)
+set_ENT_Profile("as.numeric(OUTFL_TKNOW_NAT)", "T26", T26_SDMX_FINAL_RESULT)
