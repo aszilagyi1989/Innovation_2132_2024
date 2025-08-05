@@ -1,7 +1,8 @@
 source("Functions_Standard.R")
 source("Profile_ENT.R")
+library("rlang")
 library("data.table")
-library("dplyr")
+library("tidytable")
 
 T16_SDMX <- "T16_SDMX_INN.txt"
 T16_SDMX_RESULT <- "T16_SDMX_INN_RESULT.txt"
@@ -53,14 +54,11 @@ expression2 <- c("FUND_EQUIT_SUCC",
 cat(paste("DATAFLOW", "FREQ", "TIME_PERIOD", "REF_AREA", "TABLENAME", "ACTIVITY", "NUMBER_EMPL", "TYPE_ENT", "INN_PF", "INDICATOR", "CIS_INDICATOR",	"OBS_VALUE", "UNIT_MEASURE", "UNIT_MULT", "DECIMALS",	"OBS_STATUS",	"OBS_STATUS_1",	"CONF_STATUS", "COMMENT_OBS", sep = ";"), sep = "\n", file = T16_SDMX, append = FALSE)
 for(num in 1:length(expression)){
   
-  INN_DT <- data.table(INN[eval(parse(text = expression[num])), ])
-  INN_DT <- INN_DT[, .(ENT22_SULYOZOTT=sum(VGMA001_SULY)), by = "M065_RETEG1,M0581_2J"]
+  INN_DT <- data.table(INN[eval_tidy(parse_expr(expression[num])), ])
   
   if(nrow(INN_DT) != 0){
     
-    INN_Ordered <- cbind(INN_DT, stringsAsFactors = FALSE)
-    INN_Ordered <- INN_Ordered[order(INN_Ordered$M065_RETEG1, INN_Ordered$M0581_2J), ]
-    
+    INN_DT %>% group_by(M065_RETEG1, M0581_2J) %>% summarise(ENT22_SULYOZOTT = sum(VGMA001_SULY)) %>% arrange(M065_RETEG1, M0581_2J) -> INN_Ordered
     CIS_INDICATOR <- expression2[num]
     
     for(i in 1:nrow(INN_Ordered)){
@@ -358,14 +356,11 @@ TYPE_ENT <- "NINN"
 cat(paste("DATAFLOW", "FREQ", "TIME_PERIOD", "REF_AREA", "TABLENAME", "ACTIVITY", "NUMBER_EMPL", "TYPE_ENT", "INN_PF", "INDICATOR", "CIS_INDICATOR",	"OBS_VALUE", "UNIT_MEASURE", "UNIT_MULT", "DECIMALS",	"OBS_STATUS",	"OBS_STATUS_1",	"CONF_STATUS", "COMMENT_OBS", sep = ";"), sep = "\n", file = T16_SDMX, append = FALSE)
 for(num in 1:length(expression)){
   
-  NINN_DT <- data.table(NINN[eval(parse(text = expression[num])), ])
-  NINN_DT <- NINN_DT[, .(ENT22_SULYOZOTT=sum(VGMA001_SULY)), by = "M065_RETEG1,M0581_2J"]
+  NINN_DT <- data.table(NINN[eval_tidy(parse_expr(expression[num])), ])
   
   if(nrow(NINN_DT) != 0){
     
-    NINN_Ordered <- cbind(NINN_DT, stringsAsFactors = FALSE)
-    NINN_Ordered <- NINN_Ordered[order(NINN_Ordered$M065_RETEG1, NINN_Ordered$M0581_2J), ]
-    
+    NINN_DT %>% group_by(M065_RETEG1, M0581_2J) %>% summarise(ENT22_SULYOZOTT = sum(VGMA001_SULY)) %>% arrange(M065_RETEG1, M0581_2J) -> NINN_Ordered
     CIS_INDICATOR <- expression2[num]
     
     for(i in 1:nrow(NINN_Ordered)){

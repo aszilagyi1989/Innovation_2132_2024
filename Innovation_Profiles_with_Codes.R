@@ -1,4 +1,4 @@
-library("dplyr")
+library("tidytable")
 
 # View(worksheet_01[, c("DEVE_PRD_ENT", "DEVE_PRD_ENT_OTH", "DEVE_PCS_ENT", "DEVE_PCS_ENT_OTH")])
 # IV-es profil miatt le kell futtatni, mert az alábbi 4 db mutatónak csak 1-es és üres értékei vannak, üres értékek 0-ák lesznek

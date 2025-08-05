@@ -1,17 +1,17 @@
 set_ENT_Profile <- function(column_name, tablename_Profile, save_filename){
 
-  PROFILE_I_A <<- PROFILE_I_A %>% mutate(SULYOZOTT_ENT = eval(parse(text = column_name)) * VGMA001_SULY) 
-  PROFILE_I_B <<- PROFILE_I_B %>% mutate(SULYOZOTT_ENT = eval(parse(text = column_name)) * VGMA001_SULY)
-  PROFILE_II_A <<- PROFILE_II_A %>% mutate(SULYOZOTT_ENT = eval(parse(text = column_name)) * VGMA001_SULY) 
-  PROFILE_II_B <<- PROFILE_II_B %>% mutate(SULYOZOTT_ENT = eval(parse(text = column_name)) * VGMA001_SULY)
-  PROFILE_III_A <<- PROFILE_III_A %>% mutate(SULYOZOTT_ENT = eval(parse(text = column_name)) * VGMA001_SULY) 
-  PROFILE_III_B <<- PROFILE_III_B %>% mutate(SULYOZOTT_ENT = eval(parse(text = column_name)) * VGMA001_SULY)
-  PROFILE_IV_A <<- PROFILE_IV_A %>% mutate(SULYOZOTT_ENT = eval(parse(text = column_name)) * VGMA001_SULY) 
-  PROFILE_IV_B <<- PROFILE_IV_B %>% mutate(SULYOZOTT_ENT = eval(parse(text = column_name)) * VGMA001_SULY)
-  PROFILE_V_A <<- PROFILE_V_A %>% mutate(SULYOZOTT_ENT = eval(parse(text = column_name)) * VGMA001_SULY) 
-  PROFILE_V_B <<- PROFILE_V_B %>% mutate(SULYOZOTT_ENT = eval(parse(text = column_name)) * VGMA001_SULY)
-  PROFILE_VI <<- PROFILE_VI %>% mutate(SULYOZOTT_ENT = eval(parse(text = column_name)) * VGMA001_SULY) 
-  PROFILE_VII <<- PROFILE_VII %>% mutate(SULYOZOTT_ENT = eval(parse(text = column_name)) * VGMA001_SULY)
+  PROFILE_I_A <<- PROFILE_I_A %>% mutate(SULYOZOTT_ENT = eval_tidy(parse_expr(column_name)) * VGMA001_SULY) 
+  PROFILE_I_B <<- PROFILE_I_B %>% mutate(SULYOZOTT_ENT = eval_tidy(parse_expr(column_name)) * VGMA001_SULY)
+  PROFILE_II_A <<- PROFILE_II_A %>% mutate(SULYOZOTT_ENT = eval_tidy(parse_expr(column_name)) * VGMA001_SULY) 
+  PROFILE_II_B <<- PROFILE_II_B %>% mutate(SULYOZOTT_ENT = eval_tidy(parse_expr(column_name)) * VGMA001_SULY)
+  PROFILE_III_A <<- PROFILE_III_A %>% mutate(SULYOZOTT_ENT = eval_tidy(parse_expr(column_name)) * VGMA001_SULY) 
+  PROFILE_III_B <<- PROFILE_III_B %>% mutate(SULYOZOTT_ENT = eval_tidy(parse_expr(column_name)) * VGMA001_SULY)
+  PROFILE_IV_A <<- PROFILE_IV_A %>% mutate(SULYOZOTT_ENT = eval_tidy(parse_expr(column_name)) * VGMA001_SULY) 
+  PROFILE_IV_B <<- PROFILE_IV_B %>% mutate(SULYOZOTT_ENT = eval_tidy(parse_expr(column_name)) * VGMA001_SULY)
+  PROFILE_V_A <<- PROFILE_V_A %>% mutate(SULYOZOTT_ENT = eval_tidy(parse_expr(column_name)) * VGMA001_SULY) 
+  PROFILE_V_B <<- PROFILE_V_B %>% mutate(SULYOZOTT_ENT = eval_tidy(parse_expr(column_name)) * VGMA001_SULY)
+  PROFILE_VI <<- PROFILE_VI %>% mutate(SULYOZOTT_ENT = eval_tidy(parse_expr(column_name)) * VGMA001_SULY) 
+  PROFILE_VII <<- PROFILE_VII %>% mutate(SULYOZOTT_ENT = eval_tidy(parse_expr(column_name)) * VGMA001_SULY)
   
   for(col in 1:ncol(Profile_ENT)){
     
@@ -21,7 +21,7 @@ set_ENT_Profile <- function(column_name, tablename_Profile, save_filename){
         
         if (row != 4){
           
-          Profile_ENT[row, col] <<- sum(subset(PROFILE_I_A, eval(parse(text = filter_M065_RETEG1[row])), SULYOZOTT_ENT), na.rm = TRUE)
+          Profile_ENT[row, col] <<- sum(subset(PROFILE_I_A, eval_tidy(parse_expr(filter_M065_RETEG1[row])), SULYOZOTT_ENT), na.rm = TRUE)
           
         }else{
           
@@ -35,7 +35,7 @@ set_ENT_Profile <- function(column_name, tablename_Profile, save_filename){
         
         if (row != 4){
           
-          Profile_ENT[row, col] <<- sum(subset(PROFILE_I_B, eval(parse(text = filter_M065_RETEG1[row])), SULYOZOTT_ENT), na.rm = TRUE)
+          Profile_ENT[row, col] <<- sum(subset(PROFILE_I_B, eval_tidy(parse_expr(filter_M065_RETEG1[row])), SULYOZOTT_ENT), na.rm = TRUE)
           
         }else{
           
@@ -49,7 +49,7 @@ set_ENT_Profile <- function(column_name, tablename_Profile, save_filename){
         
         if (row != 4){
           
-          Profile_ENT[row, col] <<- sum(subset(PROFILE_II_A, eval(parse(text = filter_M065_RETEG1[row])), SULYOZOTT_ENT), na.rm = TRUE)
+          Profile_ENT[row, col] <<- sum(subset(PROFILE_II_A, eval_tidy(parse_expr(filter_M065_RETEG1[row])), SULYOZOTT_ENT), na.rm = TRUE)
           
         }else{
           
@@ -63,7 +63,7 @@ set_ENT_Profile <- function(column_name, tablename_Profile, save_filename){
         
         if (row != 4){
           
-          Profile_ENT[row, col] <<- sum(subset(PROFILE_II_B, eval(parse(text = filter_M065_RETEG1[row])), SULYOZOTT_ENT), na.rm = TRUE)
+          Profile_ENT[row, col] <<- sum(subset(PROFILE_II_B, eval_tidy(parse_expr(filter_M065_RETEG1[row])), SULYOZOTT_ENT), na.rm = TRUE)
           
         }else{
           
@@ -77,7 +77,7 @@ set_ENT_Profile <- function(column_name, tablename_Profile, save_filename){
         
         if (row != 4){
           
-          Profile_ENT[row, col] <<- sum(subset(PROFILE_III_A, eval(parse(text = filter_M065_RETEG1[row])), SULYOZOTT_ENT), na.rm = TRUE)
+          Profile_ENT[row, col] <<- sum(subset(PROFILE_III_A, eval_tidy(parse_expr(filter_M065_RETEG1[row])), SULYOZOTT_ENT), na.rm = TRUE)
           
         }else{
           
@@ -91,7 +91,7 @@ set_ENT_Profile <- function(column_name, tablename_Profile, save_filename){
         
         if (row != 4){
           
-          Profile_ENT[row, col] <<- sum(subset(PROFILE_III_B, eval(parse(text = filter_M065_RETEG1[row])), SULYOZOTT_ENT), na.rm = TRUE)
+          Profile_ENT[row, col] <<- sum(subset(PROFILE_III_B, eval_tidy(parse_expr(filter_M065_RETEG1[row])), SULYOZOTT_ENT), na.rm = TRUE)
           
         }else{
           
@@ -105,7 +105,7 @@ set_ENT_Profile <- function(column_name, tablename_Profile, save_filename){
         
         if (row != 4){
           
-          Profile_ENT[row, col] <<- sum(subset(PROFILE_IV_A, eval(parse(text = filter_M065_RETEG1[row])), SULYOZOTT_ENT), na.rm = TRUE)
+          Profile_ENT[row, col] <<- sum(subset(PROFILE_IV_A, eval_tidy(parse_expr(filter_M065_RETEG1[row])), SULYOZOTT_ENT), na.rm = TRUE)
           
         }else{
           
@@ -119,7 +119,7 @@ set_ENT_Profile <- function(column_name, tablename_Profile, save_filename){
         
         if (row != 4){
           
-          Profile_ENT[row, col] <<- sum(subset(PROFILE_IV_B, eval(parse(text = filter_M065_RETEG1[row])), SULYOZOTT_ENT), na.rm = TRUE)
+          Profile_ENT[row, col] <<- sum(subset(PROFILE_IV_B, eval_tidy(parse_expr(filter_M065_RETEG1[row])), SULYOZOTT_ENT), na.rm = TRUE)
           
         }else{
           
@@ -133,7 +133,7 @@ set_ENT_Profile <- function(column_name, tablename_Profile, save_filename){
         
         if (row != 4){
           
-          Profile_ENT[row, col] <<- sum(subset(PROFILE_V_A, eval(parse(text = filter_M065_RETEG1[row])), SULYOZOTT_ENT), na.rm = TRUE)
+          Profile_ENT[row, col] <<- sum(subset(PROFILE_V_A, eval_tidy(parse_expr(filter_M065_RETEG1[row])), SULYOZOTT_ENT), na.rm = TRUE)
           
         }else{
           
@@ -147,7 +147,7 @@ set_ENT_Profile <- function(column_name, tablename_Profile, save_filename){
         
         if (row != 4){
           
-          Profile_ENT[row, col] <<- sum(subset(PROFILE_V_B, eval(parse(text = filter_M065_RETEG1[row])), SULYOZOTT_ENT), na.rm = TRUE)
+          Profile_ENT[row, col] <<- sum(subset(PROFILE_V_B, eval_tidy(parse_expr(filter_M065_RETEG1[row])), SULYOZOTT_ENT), na.rm = TRUE)
           
         }else{
           
@@ -161,7 +161,7 @@ set_ENT_Profile <- function(column_name, tablename_Profile, save_filename){
         
         if (row != 4){
           
-          Profile_ENT[row, col] <<- sum(subset(PROFILE_VI, eval(parse(text = filter_M065_RETEG1[row])), SULYOZOTT_ENT), na.rm = TRUE)
+          Profile_ENT[row, col] <<- sum(subset(PROFILE_VI, eval_tidy(parse_expr(filter_M065_RETEG1[row])), SULYOZOTT_ENT), na.rm = TRUE)
           
         }else{
           
@@ -175,7 +175,7 @@ set_ENT_Profile <- function(column_name, tablename_Profile, save_filename){
         
         if (row != 4){
           
-          Profile_ENT[row, col] <<- sum(subset(PROFILE_VII, eval(parse(text = filter_M065_RETEG1[row])), SULYOZOTT_ENT), na.rm = TRUE)
+          Profile_ENT[row, col] <<- sum(subset(PROFILE_VII, eval_tidy(parse_expr(filter_M065_RETEG1[row])), SULYOZOTT_ENT), na.rm = TRUE)
           
         }else{
           
