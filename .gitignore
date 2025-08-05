@@ -1,0 +1,8 @@
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+*.txt
+*.xlsx
+*.Rproj
+Excel_Files
