@@ -5,7 +5,7 @@ library("tidytable")
 T34_SDMX_FINAL_RESULT <- "T34_SDMX_ALL_FINAL_RESULT.txt"
 
 TABLENAME <- "T34"
-
+REF_AREA <- "HU"
 TYPE_ENT <- "INN"
 INN_PF <- "_Z"
 INDICATOR <- "ENT"

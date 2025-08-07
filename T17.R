@@ -6,7 +6,7 @@ library("tidytable")
 T17_SDMX_FINAL_RESULT <- "T17_SDMX_ALL_FINAL_RESULT.txt"
 
 TABLENAME <- "T17"
-
+REF_AREA <- "HU"
 TYPE_ENT <- "INN"
 INN_PF <- "_Z"
 INDICATOR <- "ENT"
@@ -52,8 +52,7 @@ for(num in 1:length(expression)){
       OBS_VALUE <- INN_Ordered[i, 3]
       Aggregate <- rbind(Aggregate, list(DATAFLOW, FREQ, TIME_PERIOD, REF_AREA, TABLENAME, ACTIVITY, NUMBER_EMPL, TYPE_ENT, INN_PF, INDICATOR, CIS_INDICATOR,	OBS_VALUE, UNIT_MEASURE, UNIT_MULT, DECIMALS,	OBS_STATUS,	OBS_STATUS_1,	CONF_STATUS, COMMENT_OBS), ignore.attr = TRUE)
       
-      }
-    
+    }
   }
 }
 
@@ -257,7 +256,6 @@ for(num in 1:length(expression)){
   }
   
 }
-
 
 Aggregate$OBS_VALUE <- as.numeric(Aggregate$OBS_VALUE)
 Aggregate_INN <- Aggregate

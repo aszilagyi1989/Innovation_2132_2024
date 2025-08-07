@@ -6,7 +6,7 @@ library("tidytable")
 T16_SDMX_FINAL_RESULT <- "T16_SDMX_ALL_FINAL_RESULT.txt"
 
 TABLENAME <- "T16"
-
+REF_AREA <- "HU"
 TYPE_ENT <- "INN"
 INN_PF <- "_Z"
 INDICATOR <- "ENT"
