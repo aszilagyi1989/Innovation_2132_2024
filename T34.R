@@ -312,39 +312,3 @@ Aggregate_INN[, "OBS_VALUE"] <- gsub("\\.", ",", Aggregate_INN[, "OBS_VALUE"])
 Aggregate_INN$OBS_VALUE[is.na(Aggregate_INN$OBS_VALUE)] <- ""
 
 write.table(Aggregate_INN, T34_SDMX_FINAL_RESULT, sep = ";", quote = FALSE, row.names = FALSE, append = FALSE)
-
-
-
-# T34_SDMX <- "T34_SDMX_INN.txt"
-# T34_SDMX_RESULT <- "T34_SDMX_ALL_RESULT.txt"
-# T34_SDMX_FINAL_RESULT <- "T34_SDMX_ALL_FINAL_RESULT.txt"
-# TXTData <- file(description = T34_SDMX, open = "r")
-# line <- readLines(con = TXTData)
-# result_Aggregate <- data.frame()
-# result_T34 <- data.frame()
-# 
-# for (i in 2:length(line)){
-#   values <- strsplit(x = line[i], split = ";");
-#   df <- data.frame(matrix(unlist(values), nrow = 1), stringsAsFactors = FALSE)
-#   result_Aggregate <- rbind(result_Aggregate, df)
-# }
-# 
-# names(result_Aggregate) = c("DATAFLOW", "FREQ", "TIME_PERIOD", "REF_AREA", "TABLENAME", "ACTIVITY", "NUMBER_EMPL", "TYPE_ENT", "INN_PF", "INDICATOR", "CIS_INDICATOR",	"OBS_VALUE", "UNIT_MEASURE", "UNIT_MULT", "DECIMALS",	"OBS_STATUS",	"OBS_STATUS_1",	"CONF_STATUS")
-# result_Aggregate$COMMENT_OBS <- ""
-# result_Aggregate <- result_Aggregate[(result_Aggregate$ACTIVITY != "F41" & result_Aggregate$ACTIVITY != "F42" & result_Aggregate$ACTIVITY != "F43" & result_Aggregate$ACTIVITY != "I55" & result_Aggregate$ACTIVITY != "I56") & (result_Aggregate$NUMBER_EMPL == "_T" | result_Aggregate$ACTIVITY == "M71T73" | result_Aggregate$ACTIVITY == "K" | result_Aggregate$ACTIVITY == "J" | result_Aggregate$ACTIVITY == "H" | result_Aggregate$ACTIVITY == "G46" | result_Aggregate$ACTIVITY == "A" | result_Aggregate$ACTIVITY == "B" | result_Aggregate$ACTIVITY == "C" | result_Aggregate$ACTIVITY == "D" | result_Aggregate$ACTIVITY == "E" | result_Aggregate$ACTIVITY == "I" | result_Aggregate$ACTIVITY == "BTE" | result_Aggregate$ACTIVITY == "GTN" | result_Aggregate$ACTIVITY == "G46TM73_INN" | result_Aggregate$ACTIVITY == "_T"), ]
-# result_Aggregate <- unique(result_Aggregate) #G46 miatt
-# nrow(result_Aggregate)
-# 
-# result_T34 <- rbind(result_T34, result_Aggregate)
-# 
-# result_T34$OBS_VALUE <- as.character(result_T34$OBS_VALUE)
-# result_T34[, "OBS_VALUE"] <- gsub("\\.", ",", result_T34[, "OBS_VALUE"])
-# write.table(result_T34, T34_SDMX_RESULT, sep = ";", quote = FALSE, row.names = FALSE, append = FALSE)
-# 
-# result_T34$COMMENT_OBS <- ""
-# 
-# result_T34[result_T34$ACTIVITY == "A" | result_T34$ACTIVITY == "A01" | result_T34$ACTIVITY == "A02" | result_T34$ACTIVITY == "A03" | result_T34$ACTIVITY == "F" | result_T34$ACTIVITY == "G45" | result_T34$ACTIVITY == "G47" | result_T34$ACTIVITY == "I" | result_T34$ACTIVITY == "L" | result_T34$ACTIVITY == "M69" | result_T34$ACTIVITY == "M70" | result_T34$ACTIVITY == "M74" | result_T34$ACTIVITY == "M75" | result_T34$ACTIVITY == "N" | result_T34$ACTIVITY == "N77" | result_T34$ACTIVITY == "N78" | result_T34$ACTIVITY == "N79" | result_T34$ACTIVITY == "N80" | result_T34$ACTIVITY == "N81" | result_T34$ACTIVITY == "N82", "OBS_VALUE"] <- ""
-# result_T34 <- subset(result_T34, ACTIVITY != "GTN" | (ACTIVITY == "GTN" & (NUMBER_EMPL == "_T")))
-# result_T34 <- subset(result_T34, ACTIVITY != "G" & ACTIVITY != "M")
-# 
-# write.table(result_T34, T34_SDMX_FINAL_RESULT, sep = ";", quote = FALSE, row.names = FALSE, append = FALSE)

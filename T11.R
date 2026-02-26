@@ -267,6 +267,7 @@ for(num in 1:length(expression)){
     insert__T(TYPE_ENT, ACTIVITY, NUMBER_EMPL, UNIT_MEASURE, INDICATOR, CIS_INDICATOR)
     
   }
+  
 }
 
 Aggregate$OBS_VALUE <- as.numeric(Aggregate$OBS_VALUE)
