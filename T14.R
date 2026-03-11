@@ -836,7 +836,6 @@ for(num in 1:length(expression)){
     
     NINN_DT %>% mutate(EXP22_SULYOZOTT = eval_tidy(parse_expr(expression3[num]))) -> NINN_DT
     NINN_DT %>% group_by(M065_RETEG1, M0581_2J) %>% summarise(EXP22_SULYOZOTT = sum(EXP22_SULYOZOTT)) %>% arrange(M065_RETEG1, M0581_2J) -> NINN_Ordered
-    
     CIS_INDICATOR <- expression2[num]
     
     for(i in 1:nrow(NINN_Ordered)){
@@ -861,7 +860,6 @@ for(num in 1:length(expression)){
       
     }
   }
-  
 }
 
 if(nrow(NINN_DT) != 0){
